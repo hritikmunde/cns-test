@@ -6,6 +6,15 @@ import { ModalComponent } from './modal/modal.component';
 import { MatButtonModule } from '@angular/material/button';
 import { RouterModule } from '@angular/router';
 
+interface Structure {
+  name?: string;
+  id?: string;
+}
+
+interface ApiResponse {
+  anatomical_structures: Structure[];
+}
+
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -23,13 +32,16 @@ export class AppComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.dataFetchService.fetchData().subscribe(data => {
-      const structures = data?.flatMap(row => row.anatomical_structures || []);
+    this.dataFetchService.fetchData().subscribe((data: ApiResponse[]) => {
+      const structures: Structure[] = data?.flatMap(row => row.anatomical_structures || []);
       const uniqueStructures = new Map<string, { name: string; id: string }>();
 
-      structures.forEach(structure => {
-        if (structure.name && structure.id) {
-          uniqueStructures.set(structure.name, { name: structure.name, id: structure.id });
+      structures.forEach((structure: Structure) => {
+        if (structure.name) {
+          uniqueStructures.set(structure.name, {
+            name: structure.name,
+            id: structure.id || 'No ID'
+          });
         }
       });
 
@@ -38,14 +50,16 @@ export class AppComponent implements OnInit {
   }
 
   openDetails(structure: { name: string; id: string }): void {
-    if (!structure.id.startsWith('UBERON:')) {
-      console.error('Invalid ID format');
-      return;
+    if (!structure.id || structure.id === 'No ID') {
+      this.dialog.open(ModalComponent, {
+        width: '500px',
+        data: { error: `Structure "${structure.name}" has no ID.` }
+      });
+    } else {
+      this.dialog.open(ModalComponent, {
+        width: '500px',
+        data: structure
+      });
     }
-
-    this.dialog.open(ModalComponent, {
-      width: '500px',
-      data: structure
-    });
   }
 }

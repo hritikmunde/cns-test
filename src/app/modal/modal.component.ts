@@ -8,11 +8,11 @@ import { DataService } from '../data.service';
   selector: 'app-modal',
   template: `
     <div class="modal-content">
-      <h2 mat-dialog-title>{{ details?.label || 'Loading...' }}</h2>
+      <h2 mat-dialog-title>{{ data.error ? 'Error' : details?.label || 'Loading...' }}</h2>
       <div mat-dialog-content>
-        <div *ngIf="loading">Loading details...</div>
-        <div *ngIf="error" class="error">{{ error }}</div>
-        <div *ngIf="details && !loading">
+        <div *ngIf="data.error">{{ data.error }}</div>
+        <div *ngIf="!data.error && loading">Loading details...</div>
+        <div *ngIf="!data.error && details && !loading">
           <p><strong>Name:</strong> {{ details.label }}</p>
           <p><strong>Description:</strong> {{ details.description }}</p>
           <p><strong>Ontology Link:</strong> <a [href]="details.iri" target="_blank">{{ details.obo_id }}</a></p>
@@ -39,16 +39,14 @@ import { DataService } from '../data.service';
 export class ModalComponent {
   details: any;
   loading = true;
-  error: string | null = null;
 
   constructor(
-    @Inject(MAT_DIALOG_DATA) public data: { id: string },
+    @Inject(MAT_DIALOG_DATA) public data: { id?: string; error?: string },
     private dialogRef: MatDialogRef<ModalComponent>,
     private dataService: DataService
   ) {
     if (data?.id) {
       this.loading = true;
-      this.error = null;
       this.dataService.getStructureDetails(data.id).subscribe({
         next: (response) => {
           this.details = response;
@@ -56,13 +54,11 @@ export class ModalComponent {
         },
         error: (err) => {
           console.error('Modal Error:', err);
-          this.error = 'Error fetching details. Please try again later.';
           this.loading = false;
         }
       });
     } else {
-      this.loading = false;
-      this.error = 'No ID provided for this structure.';
+      this.loading = false; // No ID provided
     }
   }
 
