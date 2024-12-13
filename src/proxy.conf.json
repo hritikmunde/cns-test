@@ -1,5 +1,5 @@
 {
-  "/ols/api/*": {
+  "/ols/api": {
     "target": "https://www.ebi.ac.uk",
     "secure": true,
     "changeOrigin": true,
