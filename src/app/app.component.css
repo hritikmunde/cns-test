@@ -1,0 +1,32 @@
+.container {
+  padding: 20px;
+}
+
+.structure-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.structure-item {
+  padding: 15px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.name {
+  font-weight: bold;
+  margin-bottom: 5px;
+  cursor: pointer;
+  color: #2196F3;
+}
+
+.name:hover {
+  text-decoration: underline;
+}
+
+.id {
+  color: #666;
+  font-size: 0.9em;
+}
